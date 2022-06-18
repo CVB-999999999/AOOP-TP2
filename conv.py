@@ -1,22 +1,67 @@
-import pandas as pd
+import csv
+import string
 
-dInsol = pd.read_csv('crimes-19.csv', sep=',', header=0, low_memory=False)
+# csv file name
+filename = "crimes-19.csv"
 
-dInsol = dInsol.drop('ID', axis=1)
-dInsol = dInsol.drop('Case Number', axis=1)
-dInsol = dInsol.drop('Primary Type', axis=1)
-dInsol = dInsol.drop('Description', axis=1)
-dInsol = dInsol.drop('Location Description', axis=1)
-dInsol = dInsol.drop('X Coordinate', axis=1)
-dInsol = dInsol.drop('Y Coordinate', axis=1)
-dInsol = dInsol.drop('Updated On', axis=1)
-dInsol = dInsol.drop('Latitude', axis=1)
-dInsol = dInsol.drop('Longitude', axis=1)
-dInsol = dInsol.drop('Location', axis=1)
-dInsol = dInsol.drop('Date', axis=1)
-dInsol = dInsol.drop('Block', axis=1)
-dInsol = dInsol.drop('FBI Code', axis=1)
+# initializing the titles and rows list
+fields = []
+rows = []
 
-print(dInsol)
+print("Reading")
 
-#%%
+# reading csv file
+with open(filename, 'r') as csvfile:
+    # creating a csv reader object
+    csvreader = csv.reader(csvfile)
+
+    # extracting field names through first row
+    fields = next(csvreader)
+
+    # extracting each data row one by one
+    for row in csvreader:
+
+        # Format
+        # Location Description
+        if row[7] == "Residence":
+            ld = 1
+        elif row[7] == "Apartment":
+            ld = 2
+        elif row[7] == "Sidewalk" or row[7] == "Street":
+            ld = 3
+        elif row[7] == "Bank":
+            ld = 4
+        else:
+            ld = 0
+
+        # Arrest
+        if row[8] == "false":
+            a = 1
+        else:
+            a = 0
+
+            # Domestic
+        if row[9] == "false":
+            d = 1
+        else:
+            d = 0
+
+        rows.append([''.join([c for c in row[4] if c.isdigit()]), ld, a, d, row[10], row[11], row[12], row[13], row[17]])
+
+print("Writing....")
+
+filename = "crimes-19-m.csv"
+
+# writing to csv file
+with open(filename, 'w') as csvfile:
+    # creating a csv writer object
+    csvwriter = csv.writer(csvfile)
+
+    # writing the fields
+    csvwriter.writerow([fields[4], fields[7], fields[8], fields[9], fields[10], fields[11], fields[12], fields[13], fields[17]])
+
+    # writing the data rows
+    csvwriter.writerows(rows)
+
+print("Done")
+# %%
